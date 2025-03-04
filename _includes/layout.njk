@@ -1,11 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>{{ title }}</title>
-</head>
-<body>
-  <!-- This is where the content from syllabus.md goes -->
-  {{ content | safe }}
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ title }}</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;500;600;700&display=swap"
+    />
+
+    <script>
+      // 1) Define our time stops + colors in ascending order of time
+      const colorStops = [
+        { time: 0, color: "#010133" }, // Midnight
+        { time: 5, color: "#FFDEE2" }, // 5 AM
+        { time: 9, color: "#FAFAFA" }, // 9 AM
+        { time: 17, color: "#D3D2F6" }, // 5 PM
+        { time: 20, color: "#010133" }, // 8 PM
+        { time: 24, color: "#010133" }, // Midnight again (wrap)
+      ];
+
+      // 2) This function gets the current time, interpolates the correct color,
+      //    and applies it to the page. We also toggle .night/.day classes.
+      function updateBackgroundColor() {
+        const now = new Date();
+        const hour = now.getHours(); // 0-23
+        const minute = now.getMinutes(); // 0-59
+        const second = now.getSeconds(); // 0-59
+
+        // Convert to decimal hours, e.g. 7.5 means 7:30
+        const currentTime = hour + minute / 60 + second / 3600;
+
+        // 3) Find which two stops this time is between
+        let startStop, endStop;
+        for (let i = 0; i < colorStops.length - 1; i++) {
+          const thisStop = colorStops[i];
+          const nextStop = colorStops[i + 1];
+          if (currentTime >= thisStop.time && currentTime < nextStop.time) {
+            startStop = thisStop;
+            endStop = nextStop;
+            break;
+          }
+        }
+        // Handle edge case: if currentTime is ~24 or no break triggered
+        if (!startStop || !endStop) {
+          startStop = colorStops[colorStops.length - 2];
+          endStop = colorStops[colorStops.length - 1];
+        }
+
+        // 4) Calculate fraction between these two time stops
+        const range = endStop.time - startStop.time;
+        const elapsed = currentTime - startStop.time;
+        const t = elapsed / range; // fraction [0..1]
+
+        // 5) Interpolate the colors
+        const finalColor = interpolateColor(startStop.color, endStop.color, t);
+
+        // 6) Apply background
+        document.documentElement.style.backgroundColor = finalColor;
+
+        // 7) Night/Day text color logic
+        //    Let’s call "night" from 8 PM (20) until 5 AM (5).
+        const isNight = hour >= 20 || hour < 5;
+        document.documentElement.classList.toggle("night", isNight);
+        document.documentElement.classList.toggle("day", !isNight);
+      }
+
+      // Helper function: Interpolate between two #RRGGBB colors
+      function interpolateColor(color1, color2, t) {
+        const c1 = hexToRgb(color1);
+        const c2 = hexToRgb(color2);
+
+        const r = Math.round(c1.r + (c2.r - c1.r) * t);
+        const g = Math.round(c1.g + (c2.g - c1.g) * t);
+        const b = Math.round(c1.b + (c2.b - c1.b) * t);
+
+        return rgbToHex(r, g, b);
+      }
+
+      function hexToRgb(hex) {
+        hex = hex.replace(/^#/, "");
+        const bigint = parseInt(hex, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return { r, g, b };
+      }
+
+      function rgbToHex(r, g, b) {
+        const hr = r.toString(16).padStart(2, "0");
+        const hg = g.toString(16).padStart(2, "0");
+        const hb = b.toString(16).padStart(2, "0");
+        return "#" + hr + hg + hb;
+      }
+
+      // 8) On page load, update the background color once
+      //    Then update it every 60 seconds, for a smoother progression over time
+      (function () {
+        updateBackgroundColor(); // Initial run
+        setInterval(updateBackgroundColor, 60 * 1000); // Re-run every 60s
+      })();
+    </script>
+
+    <style>
+      /* Ensure the background covers the whole viewport */
+      html,
+      body {
+        font-family: "Inconsolata", monospace;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+
+      strong,
+      b {
+        font-weight: 600; /* or 600, etc. */
+      }
+
+      p {
+        line-height: 1.5;
+      }
+
+      ul li {
+        margin-bottom: 0.5rem; /* spacing for bullet points */
+        line-height: 1.5;
+      }
+
+      h1 {
+        padding-top: 1rem;
+        font-weight: 600; /* or 600, etc. */
+      }
+
+      h2 {
+        padding-top: 1rem;
+        font-weight: 600; /* or 600, etc. */
+      }
+
+      footer {
+        padding-top: 2rem;
+      }
+
+      .container {
+        max-width: 75rem; /* 1200px in rem units */
+        margin: 0 auto; /* centers container if screen > 1200px */
+        width: 100%;
+        padding: 1rem;
+      }
+
+      /* Text color for night: white */
+      .night {
+        color: white;
+      }
+
+      /* Text color for day: dark text */
+      .day {
+        color: #01011a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header></header>
+      <!-- This is where the content from syllabus.md goes -->
+      {{ content | safe }}
+      <footer>
+        <p>
+          &copy; 2025 Danil Nagy |
+          <a href="https://github.com/danilnagy/generative-design"
+            >View source</a
+          >
+        </p>
+      </footer>
+    </div>
+  </body>
 </html>
