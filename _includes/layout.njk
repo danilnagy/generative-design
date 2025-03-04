@@ -162,6 +162,21 @@
         word-break: break-word; /* you might also try `word-break: break-all;` */
       }
 
+      /* Global (desktop/large screens) */
+      ul,
+      ol {
+        margin-left: 2rem; /* or your preferred spacing */
+        padding-left: 0;
+      }
+
+      /* For narrower screens (e.g., 600px or less) */
+      @media (max-width: 600px) {
+        ul,
+        ol {
+          margin-left: 1rem; /* reduce indentation on mobile */
+        }
+      }
+
       footer {
         padding-top: 2rem;
       }
