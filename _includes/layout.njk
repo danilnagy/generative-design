@@ -167,13 +167,16 @@
       {{ content | safe }}
       <footer>
         <p>
-          &copy; 2025 Danil Nagy |
-          <a
+          &copy; 2025 Danil Nagy
+          {% if page.fileSlug %}
+           | <a
             href="https://github.com/danilnagy/generative-design/blob/main/{{
               page.fileSlug
             }}.md"
-            >View source</a
           >
+            View source
+          </a>
+          {% endif %}
         </p>
       </footer>
     </div>
