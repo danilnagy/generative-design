@@ -29,14 +29,15 @@
       // 1) Define color stops 0..24 hours
       // -------------------------------------------------
       const colorStops = [
-        { time: 0,  color: "#000000" }, // Midnight
-        { time: 4,  color: "#000000" }, // 4 AM
-        { time: 6,  color: "#e5857e" }, // 6 AM
-        { time: 12,  color: "#fce5cd" }, // 12 PM
-        { time: 16,  color: "#e4c7a9" }, // 4 PM
-        { time: 18, color: "#fd9c79" }, // 6 PM
-        { time: 20, color: "#04043b" }, // 8 PM
-        { time: 24, color: "#000000" }, // Midnight again
+        { time: 0,  color: "#041d33" }, // Midnight
+        { time: 4,  color: "#072d4e" }, // 4 AM
+        { time: 6,  color: "#fceba8" }, // 6 AM
+        { time: 8,  color: "#ededed" }, // 8 AM
+        { time: 12,  color: "#edead8" }, // Noon
+        { time: 16,  color: "#ededed" }, // 4 PM
+        { time: 18, color: "#fcada8" }, // 6 PM
+        { time: 20, color: "#072d4e" }, // 8 PM
+        { time: 24, color: "#041d33" }, // Midnight again
       ];
 
       // -------------------------------------------------
@@ -56,7 +57,7 @@
       // -------------------------------------------------
       function getColor() {
 
-        const currentTime = getRealTime();
+        const currentTime = getRealTime() + 18;
 
         const docHeight =
           document.documentElement.scrollHeight - window.innerHeight;
@@ -66,7 +67,15 @@
           fraction = scrollTop / docHeight;
         }
         // 0..1 => 0..24 hours
-        const scrubbedTime = fraction * 1 / 10;
+        let scrubbedTime = fraction * 1 / 4;
+
+        if (currentTime < 4.5 && currentTime + scrubbedTime > 4.5){
+scrubbedTime = 4.5 - currentTime
+        }
+
+        {# if (currentTime < 19 && currentTime + scrubbedTime > 19){
+scrubbedTime = 18 - currentTime
+        } #}
 
         console.log((currentTime + scrubbedTime) % 24)
 
@@ -99,12 +108,12 @@
 
         const baseColor = interpolateColor(startStop.color, endStop.color, t);
 
-        const mainColor = lightenDarkenColor(baseColor, -20);
+        const mainColor = lightenDarkenColor(baseColor, -30);
         // Add a second color for a 45° gradient
-        const altColor = lightenDarkenColor(mainColor, 20);
+        const altColor = lightenDarkenColor(mainColor, 30);
 
         // Decide if it's "night" or "day" for text color
-        const isNight = currentTime >= 19 || currentTime < 5;
+        const isNight = currentTime > 19 || currentTime <= 4.5;
         document.documentElement.classList.toggle("night", isNight);
         document.documentElement.classList.toggle("day", !isNight);
 
@@ -199,18 +208,15 @@
 
       strong,
       b {
-        font-weight: 600; 
+        font-weight: 700; 
       }
 
       p {
         line-height: 1.5;
       }
 
-      ul, ol {
+      ul, ol, li {
         margin-top: 0.25rem;
-      }
-
-      ul, ol li {
         margin-bottom: 0.25rem;
         line-height: 1.5;
       }
@@ -271,8 +277,45 @@
       .night {
         color: rgb(176, 176, 176);
       }
+      
+      /* .night: unvisited and visited links */
+      .night a:link{
+        color: rgb(212, 119, 119);
+        text-decoration: underline;
+      }
+      
+      .night a:visited {
+        color: rgb(174, 107, 107);
+        text-decoration: underline;
+      }
+
+      /* .night: hover and active states */
+      .night a:hover,
+      .night a:active {
+        color: rgb(222, 222, 222);  /* pure white on hover/active for contrast */
+        text-decoration: none; /* remove underline on hover, if preferred */
+      }
+
       .day {
         color:rgb(1, 1, 32);
+      }
+      
+      /* .day: unvisited and visited links */
+      .day a:link{
+        color: rgb(6, 67, 200);
+        text-decoration: underline;
+      }
+      
+      .day a:visited {
+        color: rgb(50, 88, 162);
+        text-decoration: underline;
+      }
+
+      /* .day: hover and active states */
+      .day a:hover,
+      .day a:active {
+        color: rgb(5, 36, 115);  /* pure white on hover/active for contrast */
+        text-decoration: none; /* remove underline on hover, if preferred */
       }
     </style>
   </head>
