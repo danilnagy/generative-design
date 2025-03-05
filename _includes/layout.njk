@@ -57,7 +57,7 @@
       // -------------------------------------------------
       function getColor() {
 
-        const currentTime = getRealTime() + 18;
+        const currentTime = getRealTime();
 
         const docHeight =
           document.documentElement.scrollHeight - window.innerHeight;
@@ -73,11 +73,9 @@
 scrubbedTime = 4.5 - currentTime
         }
 
-        {# if (currentTime < 19 && currentTime + scrubbedTime > 19){
-scrubbedTime = 18 - currentTime
-        } #}
-
-        console.log((currentTime + scrubbedTime) % 24)
+        if (currentTime < 19 && currentTime + scrubbedTime > 19){
+scrubbedTime = 19 - currentTime
+        }
 
         return interpolateTimeStops((currentTime + scrubbedTime) % 24);
       }
